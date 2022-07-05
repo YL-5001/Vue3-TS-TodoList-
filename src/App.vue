@@ -3,7 +3,7 @@
     <div class="todo-wrap">
       <Header :addTodo='addTodo'></Header>
       <List :todos='todos' :deleteTodo='deleteTodo' :updateTodo='updateTodo'></List>
-      <Footer :todos='todos' :checkAll='checkAll'></Footer>
+      <Footer :todos='todos' :checkAll='checkAll' :clearAllCompletedTodos='clearAllCompletedTodos'></Footer>
     </div>
   </div>
 </template>
@@ -57,13 +57,18 @@ export default defineComponent({
         todo.isCompleted = isCompleted
       })
     }
+    //清理所有选中的数据
+    const clearAllCompletedTodos = ()=> {
+      state.todos = state.todos.filter(todo => !todo.isCompleted)
+    }
     return{
       // 解构，就直接可以用todos了
       ...toRefs(state),
       addTodo,
       deleteTodo,
       updateTodo,
-      checkAll
+      checkAll,
+      clearAllCompletedTodos
     }
   }
 })
