@@ -9,13 +9,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs } from 'vue'
+import { defineComponent, onMounted, reactive, toRefs, watch } from 'vue'
 //引入子组件
 import Header from './components/Header.vue'
 import List from './components/List.vue'
 import Footer from './components/Footer.vue'
 // 引入接口
 import {Todo} from './types/todo'
+import {saveTodos,readTodos} from './utils/localStorageUtils'
 
 export default defineComponent({
   name: 'App',
@@ -26,14 +27,22 @@ export default defineComponent({
   },
   setup() {
     //泛型接口规范todos只能是这三种数据,约束state
-    const state = reactive<{ todos: Todo[]}> ({
-      todos:[
-        {id:1,title:'奔驰',isCompleted:false},
-        {id:2,title:'宝马',isCompleted:false},
-        {id:3,title:'法拉利',isCompleted:true},
-      ]
+    // const state = reactive<{ todos: Todo[]}> ({
+    //   todos:[
+    //     {id:1,title:'奔驰',isCompleted:false},
+    //     {id:2,title:'宝马',isCompleted:false},
+    //     {id:3,title:'法拉利',isCompleted:true},
+    //   ]
+    // })
+    const state = reactive<{todos:Todo[]}>({
+      todos:[]//一开始是一个空数组
     })
-
+    //界面加载完毕后过一会儿再读取数据
+    onMounted(()=>{
+      setTimeout(()=>{
+        state.todos = readTodos()
+      },1000)
+    })
     //添加数据的方法
     const addTodo = (todo:Todo)=>{
       //使用unshift是在数组头部开始添加，新加的数据显示在最上面
@@ -61,6 +70,8 @@ export default defineComponent({
     const clearAllCompletedTodos = ()=> {
       state.todos = state.todos.filter(todo => !todo.isCompleted)
     }
+    //监视state.todos的变化，只要变化就调用saveTodos
+    watch(()=>state.todos,saveTodos,{deep:true})
     return{
       // 解构，就直接可以用todos了
       ...toRefs(state),
